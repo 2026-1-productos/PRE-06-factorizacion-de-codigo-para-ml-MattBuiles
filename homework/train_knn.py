@@ -5,56 +5,44 @@
 # Considere diferentes valores para la cantidad de vecinos
 #
 
+import os
+import pickle
+
 # importacion de librerias
-import pandas as pd
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 
-# descarga de datos
+from homework.src._internals.calculate_metrics import calculate_metrics
+from homework.src._internals.prepare_data import prepare_data
+from homework.src._internals.print_metrics import print_metrics
+
+# descarga de datos y division
 url = "http://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
-df = pd.read_csv(url, sep=";")
-
-# preparacion de datos
-y = df["quality"]
-x = df.copy()
-x.pop("quality")
-
-# dividir los datos en entrenamiento y testing
-(x_train, x_test, y_train, y_test) = train_test_split(
-    x,
-    y,
-    test_size=0.25,
-    random_state=123456,
-)
+(x_train, x_test, y_train, y_test) = prepare_data(url)
 
 # entrenar el modelo
 estimator = KNeighborsRegressor(n_neighbors=5)
 estimator.fit(x_train, y_train)
+
+# Guardar el estimador entrenado
+os.makedirs("models", exist_ok=True)
+with open(os.path.join("models", "knn.pkl"), "wb") as f:
+    pickle.dump(estimator, f)
 
 print()
 print(estimator, ":", sep="")
 
 # Metricas de error durante entrenamiento
 y_pred = estimator.predict(x_train)
-mse = mean_squared_error(y_train, y_pred)
-mae = mean_absolute_error(y_train, y_pred)
-r2 = r2_score(y_train, y_pred)
+mse, mae, r2 = calculate_metrics(y_train, y_pred)
 
 print()
 print("Metricas de entrenamiento:")
-print(f"  MSE: {mse}")
-print(f"  MAE: {mae}")
-print(f"  R2: {r2}")
+print_metrics(mse, mae, r2)
 
 # Metricas de error durante testing
 print()
 print("Metricas de testing:")
 y_pred = estimator.predict(x_test)
-mse = mean_squared_error(y_test, y_pred)
-mae = mean_absolute_error(y_test, y_pred)
-r2 = r2_score(y_test, y_pred)
+mse, mae, r2 = calculate_metrics(y_test, y_pred)
 
-print(f"  MSE: {mse}")
-print(f"  MAE: {mae}")
-print(f"  R2: {r2}")
+print_metrics(mse, mae, r2)
