@@ -1,9 +1,10 @@
-"""Persist trained models to disk."""
 import os
 import pickle
 
 
-def save_model(estimator, path):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "wb") as f:
-        pickle.dump(estimator, f)
+def save_model(model, save_path="models/estimator.pkl"):
+    """Save the model to the specified path."""
+    if not os.path.exists("models"):
+        os.makedirs("models")
+    with open(save_path, "wb") as file:
+        pickle.dump(model, file)

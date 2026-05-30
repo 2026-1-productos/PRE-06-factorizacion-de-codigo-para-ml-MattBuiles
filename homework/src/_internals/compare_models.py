@@ -1,21 +1,7 @@
-"""Helpers to compare model metrics."""
-
-
-def _metric_value(metrics, metric):
-    if isinstance(metrics, dict):
-        return metrics[metric]
-    index_map = {"mse": 0, "mae": 1, "r2": 2}
-    return metrics[index_map[metric]]
-
-
-def is_better(new_metrics, best_metrics, metric="mse"):
-    if best_metrics is None:
-        return True
-
-    new_value = _metric_value(new_metrics, metric)
-    best_value = _metric_value(best_metrics, metric)
-
-    if metric == "r2":
-        return new_value > best_value
-
-    return new_value < best_value
+def compare_models(current_model, best_model, x_test, y_test):
+    """Compare the current model with the best model and return the better one."""
+    if best_model is None or current_model.score(x_test, y_test) > best_model.score(
+        x_test, y_test
+    ):
+        return current_model
+    return best_model
